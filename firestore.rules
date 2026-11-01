@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function profilePath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+    function hasProfile() {
+      return signedIn() && exists(profilePath(request.auth.uid));
+    }
+    function member() {
+      return hasProfile() && get(profilePath(request.auth.uid)).data.active == true;
+    }
+    function admin() {
+      return member() && get(profilePath(request.auth.uid)).data.role == 'admin';
+    }
+    function self(uid) {
+      return member() && request.auth.uid == uid;
+    }
+    function orderPath(orderId) {
+      return /databases/$(database)/documents/orders/$(orderId);
+    }
+    function productPath(productId) {
+      return /databases/$(database)/documents/products/$(productId);
+    }
+
+    match /users/{uid} {
+      allow get: if (signedIn() && request.auth.uid == uid) || admin();
+      allow list: if admin();
+      allow create: if admin()
+        && request.resource.data.keys().hasOnly(['name','username','role','balance','active','createdAt'])
+        && request.resource.data.role == 'student'
+        && request.resource.data.balance == 0
+        && request.resource.data.active == true;
+      // 학생은 자기 상품 교환 트랜잭션 안에서만 잔액을 차감할 수 있습니다.
+      allow update: if admin() || (
+        self(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance','lastOrderId'])
+        && request.resource.data.lastOrderId is string
+        && !exists(orderPath(request.resource.data.lastOrderId))
+        && getAfter(orderPath(request.resource.data.lastOrderId)).data.uid == uid
+        && getAfter(orderPath(request.resource.data.lastOrderId)).data.status == 'approved'
+        && request.resource.data.balance == resource.data.balance - getAfter(orderPath(request.resource.data.lastOrderId)).data.price
+        && getAfter(productPath(getAfter(orderPath(request.resource.data.lastOrderId)).data.productId)).data.lastOrderId == request.resource.data.lastOrderId
+      );
+      allow delete: if false;
+    }
+
+    match /products/{productId} {
+      allow get, list: if admin() || resource.data.active == true;
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly(['name','category','emoji','imageUrl','price','stock','active','createdAt','lastOrderId'])
+        && request.resource.data.name is string
+        && request.resource.data.price is int
+        && request.resource.data.price > 0
+        && request.resource.data.stock is int
+        && request.resource.data.stock >= 0
+        && request.resource.data.active is bool;
+      // 학생은 실제 교환 주문과 함께 해당 상품 1개만 차감할 수 있습니다.
+      allow update: if member()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','lastOrderId'])
+        && request.resource.data.stock == resource.data.stock - 1
+        && resource.data.stock > 0
+        && request.resource.data.lastOrderId is string
+        && !exists(orderPath(request.resource.data.lastOrderId))
+        && getAfter(orderPath(request.resource.data.lastOrderId)).data.productId == productId
+        && getAfter(orderPath(request.resource.data.lastOrderId)).data.uid == request.auth.uid
+        && getAfter(orderPath(request.resource.data.lastOrderId)).data.status == 'approved'
+        && getAfter(profilePath(request.auth.uid)).data.lastOrderId == request.resource.data.lastOrderId;
+      // 상품 관리자는 교환 내역이 없는 상품을 삭제할 수 있습니다.
+      // 교환 내역 존재 여부는 관리자 화면에서 확인하고, 있을 경우 비공개 처리합니다.
+      allow delete: if admin();
+    }
+
+    match /orders/{orderId} {
+      allow get, list: if admin() || (member() && resource.data.uid == request.auth.uid);
+      allow create: if member()
+        && request.resource.data.keys().hasOnly(['uid','studentName','productId','productName','price','status','createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'approved'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.productId is string
+        && exists(/databases/$(database)/documents/products/$(request.resource.data.productId))
+        && get(productPath(request.resource.data.productId)).data.active == true
+        && get(productPath(request.resource.data.productId)).data.stock > 0
+        && get(profilePath(request.auth.uid)).data.balance >= get(productPath(request.resource.data.productId)).data.price
+        && request.resource.data.price == get(productPath(request.resource.data.productId)).data.price
+        && request.resource.data.productName == get(productPath(request.resource.data.productId)).data.name
+        && request.resource.data.studentName == get(profilePath(request.auth.uid)).data.name
+        && getAfter(productPath(request.resource.data.productId)).data.stock == get(productPath(request.resource.data.productId)).data.stock - 1
+        && getAfter(productPath(request.resource.data.productId)).data.lastOrderId == orderId
+        && getAfter(profilePath(request.auth.uid)).data.balance == get(profilePath(request.auth.uid)).data.balance - request.resource.data.price
+        && getAfter(profilePath(request.auth.uid)).data.lastOrderId == orderId;
+      allow update: if admin();
+      allow delete: if false;
+    }
+
+    match /ledger/{entryId} {
+      allow get, list: if admin() || (member() && resource.data.uid == request.auth.uid);
+      allow create: if admin()
+        && request.resource.data.keys().hasOnly(['uid','amount','note','createdAt'])
+        && request.resource.data.amount is int
+        && request.resource.data.createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
