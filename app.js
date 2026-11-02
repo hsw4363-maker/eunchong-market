@@ -19,7 +19,7 @@ const demo = [
   {id:"demo1",name:"귀여운 연필 세트",category:"문구",price:50,emoji:"✏️",stock:10,active:true},
   {id:"demo2",name:"달콤한 막대 사탕",category:"간식",price:30,emoji:"🍭",stock:10,active:true},
   {id:"demo3",name:"말랑말랑 인형",category:"장난감",price:180,emoji:"🧸",stock:10,active:true},
-  {id:"demo4",name:"깜짝 선물 꾸러미",category:"특별 선물",price:350,emoji:"🎁",stock:10,active:true}
+  {id:"demo4",name:"깜짝 선물 꾸러미",category:"성물",price:350,emoji:"🎁",stock:10,active:true}
 ];
 const configured = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE_");
 let app, auth, db, currentUser=null, profile=null, products=[], students=[], orders=[], ownOrders=[], ledger=[], chosenProduct=null, category="전체", adminTab="orders";
