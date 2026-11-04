@@ -19,7 +19,7 @@ const demo = [
   {id:"demo1",name:"귀여운 연필 세트",category:"문구",price:50,emoji:"✏️",stock:10,active:true},
   {id:"demo2",name:"달콤한 막대 사탕",category:"간식",price:30,emoji:"🍭",stock:10,active:true},
   {id:"demo3",name:"말랑말랑 인형",category:"장난감",price:180,emoji:"🧸",stock:10,active:true},
-  {id:"demo4",name:"깜짝 선물 꾸러미",category:"성물",price:350,emoji:"🎁",stock:10,active:true}
+  {id:"demo4",name:"깜짝 선물 꾸러미",category:"특별 선물",price:350,emoji:"🎁",stock:10,active:true}
 ];
 const configured = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE_");
 let app, auth, db, currentUser=null, profile=null, products=[], students=[], orders=[], ownOrders=[], ledger=[], chosenProduct=null, category="전체", adminTab="orders";
@@ -55,7 +55,7 @@ function renderProducts(){
  const list=products.filter(p=>p.active!==false&&(category==="전체"||p.category===category));
  const cats=["전체",...new Set(products.filter(p=>p.active!==false).map(p=>p.category))];
  $("#categories").innerHTML=cats.map(c=>`<button data-category="${esc(c)}" class="${c===category?"active":""}">${esc(c==="전체"?"전체 선물":c)}</button>`).join("");
- $("#product-grid").innerHTML=list.length?list.map((p,i)=>`<article class="product"><div class="product-visual" style="background:${colors[i%colors.length]}"><span class="product-tag">${p.stock>0?"은총 선물":"품절"}</span>${photoHtml(p)}</div><div class="product-body"><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><div class="product-bottom"><strong>${money(p.price)} <small>은총표</small></strong><button data-order="${esc(p.id)}" ${p.stock<=0||!configured?"disabled":""}>${p.stock>0?"교환하기":"품절"}</button></div></div></article>`).join(""):`<div class="empty" style="grid-column:1/-1">등록된 선물이 없어요. 관리자에서 상품을 추가해주세요.</div>`;
+ $("#product-grid").innerHTML=list.length?list.map((p,i)=>`<article class="product"><div class="product-visual" style="background:${colors[i%colors.length]}"><span class="product-tag">${p.stock>0?"은총 선물":"품절"}</span>${photoHtml(p)}</div><div class="product-body"><small>${esc(p.category)}</small><h3>${esc(p.name)}</h3><p class="product-stock ${p.stock<=0?"sold-out":""}">${p.stock>0?`재고 ${money(p.stock)}개 남음`:"품절"}</p><div class="product-bottom"><strong>${money(p.price)} <small>은총표</small></strong><button data-order="${esc(p.id)}" ${p.stock<=0||!configured?"disabled":""}>${p.stock>0?"교환하기":"품절"}</button></div></div></article>`).join(""):`<div class="empty" style="grid-column:1/-1">등록된 선물이 없어요. 관리자에서 상품을 추가해주세요.</div>`;
 }
 function listRow(title,sub,extra=""){return `<div class="row"><div class="row-main"><b>${esc(title)}</b><small>${esc(sub)}</small></div>${extra}</div>`;}
 function renderHistory(){

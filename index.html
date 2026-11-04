@@ -8,20 +8,20 @@
 </head>
 <body>
   <header class="header"><div class="container head">
-    <button class="brand" data-view="shop"><span>☩</span> 은총마켓</button>
+    <button class="brand" data-view="shop"><span>✝</span> 은총마켓</button>
     <nav><button data-view="shop" class="active">선물 가게</button><button data-view="history">나의 은총표</button><button data-view="admin" class="admin-only hidden">관리자</button></nav>
     <div class="account"><span id="point-pill" class="point-pill hidden"></span><span id="who"></span><button id="login-btn" class="solid small">로그인</button><button id="logout-btn" class="hidden">로그아웃</button></div>
   </div></header>
   <main>
     <section id="shop-view" class="view">
-      <section class="hero"><div class="container hero-wrap"><div><span class="eyebrow">✨ 은총이 모이는 특별한 공간</span><h1>차곡차곡 모은 은총,<br><em>선물로 바꿔요!</em></h1><p>미사 참여와 따뜻한 실천으로 모은 은총표로<br>내가 원하는 작은 선물을 만나보세요.</p><a class="solid" href="#products">선물 구경하기 →</a></div><div class="illustration"><div class="sun"></div><span>🎁</span></div></div></section>
+      <section class="hero"><div class="container hero-wrap"><div><span class="eyebrow">✨ 은총이 모이는 특별한 공간</span><h1>차곡차곡 모은 은총,<br><em>기쁨으로 바꿔요!</em></h1><p>미사 참여와 따뜻한 실천으로 모은 은총표로<br>내가 원하는 작은 선물을 만나보세요.</p><a class="solid" href="#products">선물 구경하기 →</a></div><div class="illustration"><div class="sun"></div><span>🎁</span></div></div></section>
       <div class="container">
       <section id="products" class="section"><div class="section-head"><div><small class="overline">OUR LITTLE GIFTS</small><h2>🎀 은총 선물 가게</h2><p>마음에 드는 선물을 골라보세요.</p></div></div>
         <div id="categories" class="categories"></div><div id="product-grid" class="product-grid"></div>
       </section><div class="banner"><div><h3>💌 은총표는 사랑을 실천한 흔적이에요</h3><p>서로 돕고 감사하는 마음을 나누며 차곡차곡 모아보세요.</p></div><span>✝</span></div></div>
     </section>
     <section id="history-view" class="view container panel-page hidden"><div class="page-title"><small>MY GRACE</small><h1>나의 은총표</h1><p>내가 모은 은총과 선물 교환 내역을 확인해요.</p></div>
-      <div class="wallet"><span>☩ 보유 은총표</span><strong id="my-balance">0 P</strong><small>교환이 확정되는 즉시 은총표가 차감돼요.</small></div>
+      <div class="wallet"><span>🌿 보유 은총표</span><strong id="my-balance">0 P</strong><small>교환이 확정되는 즉시 은총표가 차감돼요.</small></div>
       <h2>🎁 교환 내역</h2><div id="my-orders" class="white-panel"></div>
       <h2>⛪ 은총표 적립·사용 내역</h2><div id="my-ledger" class="white-panel"></div>
     </section>
@@ -37,7 +37,7 @@
         <section class="white-panel"><h2>은총표 지급·차감</h2><form id="change-balance" class="form">
           <label>학생 선택<select id="student-select" name="uid" required></select></label><label>수량 (차감은 음수)<input name="amount" type="number" required value="50" min="-100000" max="100000"></label><label>사유<input name="note" required value="미사 참여" maxlength="100"></label><button class="solid">은총표 변경</button></form></section></div><div class="white-panel gap-top"><h2>학생 목록</h2><div id="student-list"></div></div>
       </div>
-      <div id="admin-products" class="admin-tab hidden"><div class="admin-grid"><section class="white-panel"><h2>상품 등록·수정</h2><form id="product-form" class="form"><input type="hidden" name="id"><label>상품명<input name="name" required maxlength="60"></label><label>카테고리<select name="category"><option>문구</option><option>간식</option><option>장난감</option><option>성물</option><option>기타</option></select></label><label>상품 사진 경로<input name="imageUrl" placeholder="images/pencil.jpg" maxlength="300"></label><p class="note">사진 파일은 VS Code 프로젝트의 images 폴더에 넣어주세요. 사진이 없다면 아래 이모지가 대신 보여요.</p><label>대체 이모지<input name="emoji" value="🎁" maxlength="12"></label><div class="two"><label>필요 은총표<input name="price" type="number" required min="1" max="100000" value="50"></label><label>재고<input name="stock" type="number" required min="0" max="100000" value="10"></label></div><label class="inline-label"><input type="checkbox" name="active" checked> 상품 공개</label><button class="solid">상품 저장</button><button type="reset" class="subtle">입력 초기화</button></form></section><section class="white-panel"><h2>등록된 상품</h2><div id="admin-product-list"></div></section></div></div>
+      <div id="admin-products" class="admin-tab hidden"><div class="admin-grid"><section class="white-panel"><h2>상품 등록·수정</h2><form id="product-form" class="form"><input type="hidden" name="id"><label>상품명<input name="name" required maxlength="60"></label><label>카테고리<select name="category"><option>문구</option><option>간식</option><option>장난감</option><option>특별 선물</option><option>기타</option></select></label><label>상품 사진 경로<input name="imageUrl" placeholder="images/pencil.jpg" maxlength="300"></label><p class="note">사진 파일은 VS Code 프로젝트의 images 폴더에 넣어주세요. 사진이 없다면 아래 이모지가 대신 보여요.</p><label>대체 이모지<input name="emoji" value="🎁" maxlength="12"></label><div class="two"><label>필요 은총표<input name="price" type="number" required min="1" max="100000" value="50"></label><label>재고<input name="stock" type="number" required min="0" max="100000" value="10"></label></div><label class="inline-label"><input type="checkbox" name="active" checked> 상품 공개</label><button class="solid">상품 저장</button><button type="reset" class="subtle">입력 초기화</button></form></section><section class="white-panel"><h2>등록된 상품</h2><div id="admin-product-list"></div></section></div></div>
     </section>
   </main>
   <footer>© 2026 은총마켓 · 우리 성당의 작은 기쁨 상점</footer>

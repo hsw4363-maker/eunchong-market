@@ -5,25 +5,6 @@
 .section{padding-top:44px}
 @media(max-width:650px){.container{padding:0 16px}.head{min-height:66px;gap:8px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.brand{font-size:21px}.brand span{width:29px;height:29px}.head nav{order:3;width:100%;justify-content:space-around;gap:7px}.head nav button{font-size:12px}.account{margin-left:auto}.account #who{display:none}.point-pill{padding:6px;font-size:11px}.point-pill b{font-size:13px}.hero-wrap{display:block;padding-top:35px;padding-bottom:8px}.hero h1{font-size:33px}.hero p{font-size:13px}.illustration{height:170px}.sun{width:160px;height:160px}.illustration>span{font-size:90px}.floating{font-size:11px;padding:8px}.f1{top:10px}.f2{bottom:8px}.steps{grid-template-columns:1fr;gap:8px;margin:20px 0 40px}.steps>div:last-child{grid-column:auto}.steps>div{padding:11px}.section-head{display:block}.section-head h2{font-size:23px}.search{width:100%;margin-top:15px}.product-grid{gap:10px}.product-visual{height:140px}.product-visual>span:last-child{font-size:60px}.product-body{padding:12px}.product-body h3{font-size:14px}.product-bottom strong{font-size:16px}.product-bottom button{padding:7px;font-size:11px}.banner{padding:20px;margin:35px 0}.banner>span{display:none}.page-title h1{font-size:28px}.stats{gap:7px}.stats>div{display:block;padding:12px}.stats span{display:block;font-size:11px}.stats strong{font-size:18px}.white-panel{padding:16px}.row{align-items:flex-start;flex-wrap:wrap}.row-actions{width:100%}}
 .row-actions .danger{border-color:#f2cecb;color:#b54d46;background:#fff6f5}.row-actions .danger:hover{background:#fce7e5}
-/* 상품 사진 영역 */
-.product-visual {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    min-width: 0;
-    min-height: 0;
-}
-
-/* 상품 사진 크기 조절 */
-.product-visual > .product-photo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    min-width: 0;
-    min-height: 0;
-    object-fit: contain;
-    padding: 12px;
-}
+.product-visual{display:flex;align-items:center;justify-content:center;overflow:hidden;min-width:0;min-height:0}
+.product-visual>.product-photo{display:block;width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain;padding:12px}
+.product-stock{margin:0 0 12px;font-size:12px;color:#638a70;font-weight:700}.product-stock.sold-out{color:#ba6961}
