@@ -22,7 +22,7 @@ const demo = [
   {id:"demo4",name:"깜짝 선물 꾸러미",category:"특별 선물",price:350,emoji:"🎁",stock:10,active:true}
 ];
 const configured = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE_");
-let app, auth, db, currentUser=null, profile=null, products=[], students=[], orders=[], ownOrders=[], ledger=[], chosenProduct=null, category="전체", adminTab="orders";
+let app, auth, db, currentUser=null, profile=null, products=[], students=[], orders=[], ownOrders=[], ledger=[], chosenProduct=null, category="전체", adminTab="orders", orderFilter="approved";
 let stopProducts=null,stopProfile=null;
 const EMAIL_DOMAIN = "students.eunchong.example"; // 관리자 계정은 Firebase Console에서 실제 이메일로 만듭니다.
 const emailOf = (username) => `${username.toLowerCase()}@${EMAIL_DOMAIN}`;
@@ -63,12 +63,27 @@ function renderHistory(){
  $("#my-orders").innerHTML=ownOrders.length?ownOrders.map(o=>listRow(o.productName, `${localDate(o.createdAt)} · ${money(o.price)} P`,`<span class="status ${esc(o.status)}">${esc(statusName[o.status]||o.status)}</span>`)).join(""):'<div class="empty">아직 교환 내역이 없어요.</div>';
  $("#my-ledger").innerHTML=ledger.length?ledger.map(x=>listRow(x.note,localDate(x.createdAt),`<strong class="${x.amount>=0?"positive":"negative"}">${x.amount>0?"+":""}${money(x.amount)} P</strong>`)).join(""):'<div class="empty">아직 적립·사용 기록이 없어요.</div>';
 }
+function renderAdminOrders(){
+ const waiting=orders.filter(o=>o.status==="approved").length;
+ const collected=orders.filter(o=>o.status==="collected").length;
+ $("#order-waiting-count").textContent=waiting;
+ $("#order-collected-count").textContent=collected;
+ $("#order-all-count").textContent=orders.length;
+ $$("#order-filters [data-order-filter]").forEach(b=>{
+   const selected=b.dataset.orderFilter===orderFilter;
+   b.classList.toggle("active",selected);
+   b.setAttribute("aria-pressed",String(selected));
+ });
+ const visible=orderFilter==="all"?orders:orders.filter(o=>o.status===orderFilter);
+ const emptyText=orderFilter==="approved"?"수령 대기 중인 선물이 없어요.":orderFilter==="collected"?"수령 완료된 내역이 없어요.":"교환 내역이 없어요.";
+ $("#admin-order-list").innerHTML=visible.length?visible.map(o=>listRow(o.productName,`${o.studentName||"학생"} · ${money(o.price)} P · ${localDate(o.createdAt)}`,`<div class="row-actions"><span class="status ${esc(o.status)}">${esc(statusName[o.status]||o.status)}</span>${o.status==="approved"?`<button class="approve" data-status="collected" data-id="${esc(o.id)}">수령 완료</button>`:""}</div>`)).join(""):`<div class="empty">${emptyText}</div>`;
+}
 function renderAdmin(){
  if(!isAdmin())return;
  $("#student-count").textContent=students.length+"명";
  $("#pending-count").textContent=orders.filter(o=>o.status==="approved").length+"건";
  $("#product-count").textContent=products.length+"개";
- $("#admin-orders").innerHTML=orders.length?orders.map(o=>listRow(o.productName,`${o.studentName||"학생"} · ${money(o.price)} P · ${localDate(o.createdAt)}`,`<div class="row-actions"><span class="status ${esc(o.status)}">${esc(statusName[o.status]||o.status)}</span>${o.status==="approved"?`<button class="approve" data-status="collected" data-id="${esc(o.id)}">수령 완료</button>`:""}</div>`)).join(""):'<div class="empty">교환 내역이 없어요.</div>';
+ renderAdminOrders();
  $("#student-select").innerHTML='<option value="">학생 선택</option>'+students.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} (${esc(s.username)}) · ${money(s.balance)}P</option>`).join("");
  $("#student-list").innerHTML=students.length?students.map(s=>listRow(s.name,`${s.username} · ${money(s.balance)} P`)).join(""):'<div class="empty">학생을 등록해주세요.</div>';
  $("#admin-product-list").innerHTML=products.length?products.map(p=>listRow(`${p.emoji} ${p.name}`,`${money(p.price)}P · 재고 ${p.stock}개 · ${p.active?"공개":"숨김"}`,`<div class="row-actions"><button class="subtle" data-edit="${esc(p.id)}">수정</button><button class="subtle danger" data-delete="${esc(p.id)}">삭제</button></div>`)).join(""):'<div class="empty">상품을 등록해주세요.</div>';
@@ -211,7 +226,11 @@ function bindEvents(){
  $("#change-balance").onsubmit=(e)=>{e.preventDefault();safeTask(()=>changeBalance(e.currentTarget))};
  $("#product-form").onsubmit=(e)=>{e.preventDefault();safeTask(()=>saveProduct(e.currentTarget))};
  $("#admin-product-list").onclick=(e)=>{const del=e.target.closest("[data-delete]");if(del){safeTask(()=>removeProduct(del.dataset.delete));return;}const b=e.target.closest("[data-edit]");if(!b)return;const p=products.find(x=>x.id===b.dataset.edit);if(!p)return;const f=$("#product-form");for(const key of ["id","name","category","emoji","price","stock","imageUrl"])field(f,key).value=p[key]??"";field(f,"active").checked=p.active;window.scrollTo({top:0,behavior:"smooth"});};
- $("#admin-orders").onclick=(e)=>{const b=e.target.closest("[data-status]");if(b)safeTask(()=>decideOrder(b.dataset.id,b.dataset.status));};
+ $("#admin-orders").onclick=(e)=>{
+   const filter=e.target.closest("[data-order-filter]");
+   if(filter){orderFilter=filter.dataset.orderFilter;renderAdminOrders();return;}
+   const b=e.target.closest("[data-status]");if(b)safeTask(()=>decideOrder(b.dataset.id,b.dataset.status));
+ };
 }
 bindEvents();
 renderHeader();
